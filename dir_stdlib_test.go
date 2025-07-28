@@ -66,3 +66,32 @@ func TestPrintDirTreeStdlibFailure(t *testing.T) {
 		t.Fatalf("Expected an error when printing a non-existent directory, but got none")
 	}
 }
+
+// TestPrintDirTreeStdlibZeroDepth tests the case where depth calculation could result in a negative indentCount
+func TestPrintDirTreeStdlibZeroDepth(t *testing.T) {
+	// Create a temporary directory
+	tempDir, err := os.MkdirTemp("", "printdir_test")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	// Create a single file in the root directory
+	testFile := filepath.Join(tempDir, "testfile.txt")
+	err = os.WriteFile(testFile, []byte("test content"), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create test file: %v", err)
+	}
+
+	// Create a buffer to capture output
+	var buf bytes.Buffer
+
+	// Call the function with the buffer and the file path
+	// This would have caused a panic before the fix because depth would be 0, resulting in indentCount = -1
+	err = Tree(&buf, testFile)
+	if err != nil {
+		t.Fatalf("Tree returned an error: %v", err)
+	}
+
+	// We don't need to check the output content, just that it didn't panic
+}

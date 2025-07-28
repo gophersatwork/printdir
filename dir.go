@@ -24,7 +24,11 @@ func Tree(w io.Writer, path string) error {
 		}
 
 		depth := strings.Count(p, string(os.PathSeparator))
-		indent := strings.Repeat("│   ", depth-1)
+		indentCount := depth - 1
+		if indentCount < 0 {
+			indentCount = 0
+		}
+		indent := strings.Repeat("│   ", indentCount)
 
 		name := info.Name()
 		if info.IsDir() {
@@ -55,7 +59,11 @@ func TreeAfero(w io.Writer, fs afero.Fs, path string) error {
 		}
 
 		depth := strings.Count(p, string(os.PathSeparator))
-		indent := strings.Repeat("│   ", depth-1)
+		indentCount := depth - 1
+		if indentCount < 0 {
+			indentCount = 0
+		}
+		indent := strings.Repeat("│   ", indentCount)
 
 		name := info.Name()
 		if info.IsDir() {

@@ -60,3 +60,27 @@ func TestPrintDirTreeAferoFailure(t *testing.T) {
 		t.Fatalf("Expected an error when printing a non-existent directory, but got none")
 	}
 }
+
+// TestPrintDirTreeAferoZeroDepth tests the case where depth calculation could result in a negative indentCount
+func TestPrintDirTreeAferoZeroDepth(t *testing.T) {
+	// Create a memory filesystem
+	fs := afero.NewMemMapFs()
+
+	// Create a single file in the root
+	err := afero.WriteFile(fs, "testfile.txt", []byte("test content"), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create test file: %v", err)
+	}
+
+	// Create a buffer to capture output
+	var buf bytes.Buffer
+
+	// Call the function with the buffer and the file path
+	// This would have caused a panic before the fix because depth would be 0, resulting in indentCount = -1
+	err = TreeAfero(&buf, fs, "testfile.txt")
+	if err != nil {
+		t.Fatalf("TreeAfero returned an error: %v", err)
+	}
+
+	// We don't need to check the output content, just that it didn't panic
+}
